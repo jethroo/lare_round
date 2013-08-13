@@ -8,8 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = LareRound::VERSION
   spec.authors       = ["Carsten Wirth\n\n"]
   spec.email         = ["carsten.wirth@blacklane.com\n"]
-  spec.description   = %q{A collection of BigDecimal items e.g. invoice items can be rounded for displaying them in views. Rounding may apply a rounding error to the items such as the summed up rounded items will show deviation towards an invoice total with summed unrounded items. Which might cause confusion for customers and finance departments alike. Application of the largest remainder method
-    can help to preserve the total sum for fractionated parts thus eliminating this confusion.
+  spec.description   = %q{A collection of BigDecimal items e.g. invoice items can be rounded for displaying them in views. Rounding may apply a rounding error to the items such as the summed up rounded items will show deviation towards an invoice total with summed unrounded items. Which might cause confusion for customers and finance departments alike. Application of the largest remainder method can help to preserve the total sum for fractionated parts thus eliminating this confusion.
   }
   spec.summary       = %q{gem for rounding BigDecimal items by preserving its sum}
   spec.homepage      = ""
