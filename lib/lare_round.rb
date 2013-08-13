@@ -1,13 +1,29 @@
 require "lare_round/version"
+require 'bigdecimal'
 
 module LareRound
 
   def self.round(array_of_values,precision)
 
-    decimal_shift = BigDecimal.new (10 ** precision)
-    rounded_total = array_of_values.reduce(:+).round(precision) * decimal_shift
+    raise LareRoundError.new("precision must not be nil")                   if precision.nil?
+    raise LareRoundError.new("precision must be a number")                  unless precision.is_a? Numeric
+    raise LareRoundError.new("precision must be greater or equal to 0")     if precision < 0
+    raise LareRoundError.new("array_of_values must not be nil")             if array_of_values.nil?
+    raise LareRoundError.new("array_of_values must not be empty")           if array_of_values.empty?
+    raise LareRoundError.new("array_of_values must be an array")            unless array_of_values.is_a? Array
+    number_of_invalid_values = array_of_values.map{|i| i.is_a? Numeric}.reject{|i| i == true}.size
+    raise LareRoundError.new("array_of_values contains not numeric values (#{number_of_invalid_values})") if number_of_invalid_values > 0
+    warn "array_of_values contains non decimal values, you might loose precision or even wrong rounding results" if array_of_values.map{|i| i.is_a? BigDecimal}.reject{|i| i == true}.size > 0
 
+    #prevention of can't omit precision for a Rational
+    decimal_shift = BigDecimal.new (10 ** precision.to_i)
+    rounded_total = array_of_values.reduce(:+).round(precision) * decimal_shift
+    array_of_values = array_of_values.map{|v| ((v.is_a? BigDecimal) ? v : BigDecimal.new(v.to_s))}
     unrounded_values = array_of_values.map{|v| v * decimal_shift }
+
+    # items needed to be rounded down:
+    # 0.7 + 0.7 + 0.7 = ( 2.1 ).round(0) = 2
+    # (0.7).round(0) + (0.7).round(0) + (0.7).round(0) = 1 + 1 + 1 = 3
     rounded_values = array_of_values.map{|v| v.round(precision, BigDecimal::ROUND_DOWN) * decimal_shift }
 
     while not rounded_values.reduce(:+) >= rounded_total
@@ -17,5 +33,12 @@ module LareRound
 
     return rounded_values.map{|v| v / decimal_shift }
   end
+
+  # StandardError for dealing with application level errors
+  class LareRoundError < StandardError
+
+  end
+
+
 
 end
