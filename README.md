@@ -1,6 +1,6 @@
 # LareRound
 
-TODO: Write a gem description
+
 
 ## Installation
 
@@ -27,3 +27,11 @@ TODO: Write usage instructions here
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## License
+Hereby released under MIT license.
+
+## Authors/Contributors
+
+- BlackLane GmbH
+- [Carsten Wirth]([Github](http://github.com/jethroo))
