@@ -7,13 +7,16 @@ module LareRound
     raise LareRoundError.new("precision must not be nil")                   if precision.nil?
     raise LareRoundError.new("precision must be a number")                  unless precision.is_a? Numeric
     raise LareRoundError.new("precision must be greater or equal to 0")     if precision < 0
-    raise LareRoundError.new("array_of_values must be an array")            unless array_of_values.is_a? Array
+    raise LareRoundError.new("values must not be nil")                      if values.nil?
+    raise LareRoundError.new("values must not be empty")                    if values.empty?
     if values.kind_of?(Array)
       round_array_of_values(values,precision)
     elsif values.kind_of?(Hash)
       rounded_values = round_array_of_values(values.values,precision)
-      values.each_pair{|k,v| b[k] = 12}
-
+      values.keys.each_with_index do |key,index|
+        values[key] = rounded_values[index]
+      end
+      return values
     end
   end
 
@@ -24,12 +27,10 @@ module LareRound
 
   private
   def self.round_array_of_values(array_of_values,precision)
-    raise LareRoundError.new("array_of_values must not be nil")             if array_of_values.nil?
-    raise LareRoundError.new("array_of_values must not be empty")           if array_of_values.empty?
-
+    raise LareRoundError.new("array_of_values must be an array")            unless array_of_values.is_a? Array
     number_of_invalid_values = array_of_values.map{|i| i.is_a? Numeric}.reject{|i| i == true}.size
-    raise LareRoundError.new("array_of_values contains not numeric values (#{number_of_invalid_values})") if number_of_invalid_values > 0
-    warn "array_of_values contains non decimal values, you might loose precision or even wrong rounding results" if array_of_values.map{|i| i.is_a? BigDecimal}.reject{|i| i == true}.size > 0
+    raise LareRoundError.new("values contains not numeric values (#{number_of_invalid_values})") if number_of_invalid_values > 0
+    warn "values contains non decimal values, you might loose precision or even get wrong rounding results" if array_of_values.map{|i| i.is_a? BigDecimal}.reject{|i| i == true}.size > 0
 
     #prevention of can't omit precision for a Rational
     decimal_shift = BigDecimal.new (10 ** precision.to_i)
@@ -49,11 +50,5 @@ module LareRound
 
     return rounded_values.map{|v| v / decimal_shift }
   end
-
-  def self.round_hash_of_values(hash_of_values,precision)
-
-  end
-
-
 
 end
