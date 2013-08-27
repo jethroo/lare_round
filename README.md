@@ -78,4 +78,4 @@ Hereby released under MIT license.
 ## Authors/Contributors
 
 - BlackLane GmbH
-- [Carsten Wirth]([Github](http://github.com/jethroo))
+- [Carsten Wirth]([Github](http://github.com/jethroo)

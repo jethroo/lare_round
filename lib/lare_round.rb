@@ -3,14 +3,30 @@ require 'bigdecimal'
 
 module LareRound
 
-  def self.round(array_of_values,precision)
-
+  def self.round(values,precision)
     raise LareRoundError.new("precision must not be nil")                   if precision.nil?
     raise LareRoundError.new("precision must be a number")                  unless precision.is_a? Numeric
     raise LareRoundError.new("precision must be greater or equal to 0")     if precision < 0
+    raise LareRoundError.new("array_of_values must be an array")            unless array_of_values.is_a? Array
+    if values.kind_of?(Array)
+      round_array_of_values(values,precision)
+    elsif values.kind_of?(Hash)
+      rounded_values = round_array_of_values(values.values,precision)
+      values.each_pair{|k,v| b[k] = 12}
+
+    end
+  end
+
+  # StandardError for dealing with application level errors
+  class LareRoundError < StandardError
+
+  end
+
+  private
+  def self.round_array_of_values(array_of_values,precision)
     raise LareRoundError.new("array_of_values must not be nil")             if array_of_values.nil?
     raise LareRoundError.new("array_of_values must not be empty")           if array_of_values.empty?
-    raise LareRoundError.new("array_of_values must be an array")            unless array_of_values.is_a? Array
+
     number_of_invalid_values = array_of_values.map{|i| i.is_a? Numeric}.reject{|i| i == true}.size
     raise LareRoundError.new("array_of_values contains not numeric values (#{number_of_invalid_values})") if number_of_invalid_values > 0
     warn "array_of_values contains non decimal values, you might loose precision or even wrong rounding results" if array_of_values.map{|i| i.is_a? BigDecimal}.reject{|i| i == true}.size > 0
@@ -34,8 +50,7 @@ module LareRound
     return rounded_values.map{|v| v / decimal_shift }
   end
 
-  # StandardError for dealing with application level errors
-  class LareRoundError < StandardError
+  def self.round_hash_of_values(hash_of_values,precision)
 
   end
 
