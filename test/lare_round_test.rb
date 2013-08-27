@@ -10,6 +10,7 @@ class LareRoundTest < MiniTest::Unit::TestCase
   (1..9).each do |digit|
     (1..23).each do |items|
       (0..10).each do |precision|
+
         method_name = "test #{items} rounded items with last digit of #{digit} should sum up to rounded total of BigDecimal items with precision of #{precision} if passed as array".gsub(' ','_')
         define_method method_name do
           decimal = BigDecimal.new("0."+"3"*precision+"#{digit}")
@@ -17,13 +18,7 @@ class LareRoundTest < MiniTest::Unit::TestCase
           rounded_total = arr.reduce(:+).round(precision)
           assert_equal(rounded_total,LareRound.round(arr,precision).reduce(:+).round(precision))
         end
-      end
-    end
-  end
 
-  (1..9).each do |digit|
-    (1..23).each do |items|
-      (0..10).each do |precision|
         method_name = "test #{items} rounded items with last digit of #{digit} should sum up to rounded total of BigDecimal items with precision of #{precision} if passed as hash".gsub(' ','_')
         define_method method_name do
           decimal = BigDecimal.new("0."+"3"*precision+"#{digit}")
@@ -31,22 +26,17 @@ class LareRoundTest < MiniTest::Unit::TestCase
           rounded_total = hash.values.reduce(:+).round(precision)
           assert_equal(rounded_total,LareRound.round(hash,precision).values.reduce(:+).round(precision))
         end
-      end
-    end
-  end
 
-  (1..9).each do |digit|
-    (1..23).each do |items|
-      (0..10).each do |precision|
         method_name = "test #{items} rounded items with last digit of #{digit} and precision of #{precision} if passed as hash should not change order".gsub(' ','_')
         define_method method_name do
           decimal = BigDecimal.new("0."+"3"*precision+"#{digit}")
           hash = Hash[(1..items).map.with_index{|x,i|[x,decimal+BigDecimal.new(i)]}]
-          rounded_hash = LareRound.round(hash,precision)
+          rounded_hash = LareRound.round(hash.clone,precision)
           hash.keys.each do |key|
-            assert( ((hash[key] - rounded_hash[key])*10**precision < 1) )
+            assert( (((hash[key] - rounded_hash[key])*10**precision).abs < 1) )
           end
         end
+
       end
     end
   end

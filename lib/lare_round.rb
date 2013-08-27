@@ -1,4 +1,3 @@
-require "lare_round/version"
 require 'bigdecimal'
 
 module LareRound

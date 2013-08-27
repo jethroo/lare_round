@@ -7,24 +7,40 @@ A collection of BigDecimal items e.g. invoice items can be rounded for displayin
 say we have an array of 3 invoice items which are stored in the database and your invoice calculations are precise to the 4th position after the decimal point:
 
 ```ruby
-Array.new(3){BigDecimal.new(0.3334)}
+Array.new(3){BigDecimal.new('0.3334')}
 #  => [#<BigDecimal:c75a38,'0.3334E0',9(18)>, #<BigDecimal:c759c0,'0.3334E0',9(18)>, #<BigDecimal:c75920,'0.3334E0',9(18)>]
 ```
-
 say you have an invoice which is rendered as pdf which only needs to display the total you are fine, because you only
 have to round once for displaying a customer friendly price:
 
 ```ruby
 Array.new(3){BigDecimal.new('0.3334')}.reduce(:+).round(2).to_f
- => 1.0
+# => 1.0
 ```
 
-but what if you need to dispay each item separately? Each item of the invoice has to be displayed in a customer friendly way. So the most likely aproach is to simply round each item by itself, so the customer isn't bothered with 34/10000 €-Cents. Simple at it is its not quite what you want:
+But what if you need to dispay each item separately? Each item of the invoice has to be displayed in a customer friendly way.
+
+Item | Price
+ --- | ---
+ item 1 | 0.3334
+ item 2 | 0.3334
+ item 3 | 0.3334
+ **Total** | **1.0002**
+
+
+So the most likely aproach is to simply round each item by itself, so the customer isn't bothered with 34/10000 €-Cents. Simple at it is its not quite what you want:
 
 ```ruby
 Array.new(3){BigDecimal.new('0.3334')}.map{|i| i.round(2)}.reduce(:+).to_f
- => 0.99
+# => 0.99
 ```
+
+Item | Price
+ --- | ---
+ item 1 | 0.33
+ item 2 | 0.33
+ item 3 | 0.33
+ **Total** | **1.00**
 
 Now you have the customer bothering about why there is a difference between the invoice total and the invoice items sum. Which may lead in mistrust ("Hey! These guys can't even do math. I'll keep my money.") or all kinds of related confusions.
 
@@ -41,6 +57,23 @@ a.reduce(:+).to_f
 This is accomplish by utilizing the largest remainder method. Which checks for the items with the largest rounding error (fractions) and increasing them iteratively as long as the sums do not match. Regarding the before mentioned expample each item
 is rounded down to 0.33 and then the algorithm adds 0.01 to one item thus making the sums equal.
 
+Item | Price
+ --- | ---
+ item 1 | 0.34
+ item 2 | 0.33
+ item 3 | 0.33
+ **Total** | **1.00**
+
+LareRound supports *Array* and *Hash* as collection types. As usage of array was shown above here comes the hash example:
+
+```ruby
+hash = Hash[(1..3).map.with_index{|x,i|[x,BigDecimal.new('0.3334')]}]
+# => {1=>#<BigDecimal:26ac7d0,'0.3334E0',9(18)>, 2=>#<BigDecimal:26ac730,'0.3334E0',9(18)>, 3=>#<BigDecimal:26ac690,'0.3334E0',9(18)>}
+LareRound.round(hash,2)
+# => {1=>#<BigDecimal:26b9318,'0.34E0',9(36)>, 2=>#<BigDecimal:26b9250,'0.33E0',9(36)>, 3=>#<BigDecimal:26b91b0,'0.33E0',9(36)>}
+LareRound.round(hash,2).values.reduce(:+).to_f
+#=> 1.0
+```
 
 ## Build status
 [![Build Status](https://secure.travis-ci.org/jethroo/lare_round.png)](http://travis-ci.org/jethroo/lare_round)
@@ -60,10 +93,6 @@ Or install it yourself as:
 
     $ gem install lare_round
 
-## Usage
-
-TODO: Write usage instructions here
-
 ## Contributing
 
 1. Fork it
@@ -77,5 +106,5 @@ Hereby released under MIT license.
 
 ## Authors/Contributors
 
-- BlackLane GmbH
-- [Carsten Wirth]([Github](http://github.com/jethroo)
+- [BlackLane GmbH](https//www.blacklane.com "Blacklane")
+- [Carsten Wirth](http://github.com/jethroo)
