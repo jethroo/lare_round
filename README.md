@@ -106,5 +106,5 @@ Hereby released under MIT license.
 
 ## Authors/Contributors
 
-- [BlackLane GmbH](https//www.blacklane.com "Blacklane")
+- [BlackLane GmbH](http://www.blacklane.com "Blacklane")
 - [Carsten Wirth](http://github.com/jethroo)

@@ -37,10 +37,11 @@ module LareRound
     array_of_values = array_of_values.map{|v| ((v.is_a? BigDecimal) ? v : BigDecimal.new(v.to_s))}
     unrounded_values = array_of_values.map{|v| v * decimal_shift }
 
-    # items needed to be rounded down:
+    # items needed to be rounded down if positiv:
     # 0.7 + 0.7 + 0.7 = ( 2.1 ).round(0) = 2
     # (0.7).round(0) + (0.7).round(0) + (0.7).round(0) = 1 + 1 + 1 = 3
-    rounded_values = array_of_values.map{|v| v.round(precision, BigDecimal::ROUND_DOWN) * decimal_shift }
+    # elsewise if negative
+    rounded_values = array_of_values.map{|v| v < 0 ? v.round(precision, BigDecimal::ROUND_UP) * decimal_shift : v.round(precision, BigDecimal::ROUND_DOWN) * decimal_shift }
 
     while not rounded_values.reduce(:+) >= rounded_total
       fractions = unrounded_values.zip(rounded_values).map { |x, y| x - y }

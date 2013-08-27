@@ -1,5 +1,6 @@
 require_relative 'test_helper'
 require 'bigdecimal'
+require 'securerandom'
 
 class LareRoundTest < MiniTest::Unit::TestCase
 
@@ -35,6 +36,22 @@ class LareRoundTest < MiniTest::Unit::TestCase
           hash.keys.each do |key|
             assert( (((hash[key] - rounded_hash[key])*10**precision).abs < 1) )
           end
+        end
+
+        method_name = "test #{items} rounded negative items with last digit of #{digit} should sum up to rounded total of BigDecimal items with precision of #{precision} if passed as array".gsub(' ','_')
+        define_method method_name do
+          decimal = BigDecimal.new("-0."+"3"*precision+"#{digit}")
+          arr = Array.new(items){decimal}
+          rounded_total = arr.reduce(:+).round(precision)
+          assert_equal(rounded_total,LareRound.round(arr,precision).reduce(:+).round(precision))
+        end
+
+        method_name = "test #{items} rounded mixed (+/-) items with last digit of #{digit} should sum up to rounded total of BigDecimal items with precision of #{precision} if passed as array".gsub(' ','_')
+        define_method method_name do
+          decimal = BigDecimal.new( (SecureRandom.random_number(100) % 2 == 0) ? "" : "-" + "0."+"3"*precision+"#{digit}")
+          arr = Array.new(items){decimal}
+          rounded_total = arr.reduce(:+).round(precision)
+          assert_equal(rounded_total,LareRound.round(arr,precision).reduce(:+).round(precision))
         end
 
       end
