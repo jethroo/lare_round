@@ -1,6 +1,14 @@
 # LareRound
 
-A collection of BigDecimal items e.g. invoice items can be rounded for displaying them in views. Rounding may apply a rounding error to the items such as the summed up rounded items will show deviation towards an invoice total with summed unrounded items. Which might cause confusion for customers and finance departments alike. Application of the largest remainder method can help to preserve the total sum for fractionated parts thus eliminating this confusion.
+A collection of BigDecimal items e.g. invoice items can be rounded for displaying them in views. Rounding may apply a rounding error to the items such as the summed up rounded items will show deviation towards an invoice total with summed unrounded items. Which might cause confusion for customers and finance departments alike. Application of the largest remainder method can help to preserve the total sum for rounded parts thus eliminating this confusion.
+
+## Build status
+[![Build Status](https://secure.travis-ci.org/jethroo/lare_round.png)](http://travis-ci.org/jethroo/lare_round)
+
+
+## Work in Progess
+
+The gem status is still 'work in progress', it will be released until it satisfies my (and hopefully your) expectations.
 
 ## Example
 
@@ -54,7 +62,7 @@ a.reduce(:+).to_f
 # => 1.0
 ```
 
-This is accomplish by utilizing the largest remainder method. Which checks for the items with the largest rounding error (fractions) and increasing them iteratively as long as the sums do not match. Regarding the before mentioned expample each item
+This is accomplish by utilizing the largest remainder method. Which checks for the items with the largest rounding error and increasing them iteratively as long as the sums do not match. Regarding the before mentioned expample each item
 is rounded down to 0.33 and then the algorithm adds 0.01 to one item thus making the sums equal.
 
 Item | Price
@@ -75,23 +83,27 @@ LareRound.round(hash,2).values.reduce(:+).to_f
 #=> 1.0
 ```
 
-## Build status
-[![Build Status](https://secure.travis-ci.org/jethroo/lare_round.png)](http://travis-ci.org/jethroo/lare_round)
+## Open Issues / Features
 
+  * support specific type of rounding behavior for single items such as always rounding up in the case of taxes
+
+Item (unrounded)| Price (unrounded) | LareRound | Financial
+ --- | --- | ---
+ item | 10.000 | 10.00 | 10.00
+ tax ( 8.23%) | 0.823 | 0.82 | 0.83
+ **Total** | **10.823** | **10.82** | **10.83**
+
+  * release as gem
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'lare_round'
+    gem 'lare_round', :git => "git://github.com/jethroo/lare_round.git"
 
 And then execute:
 
     $ bundle
-
-Or install it yourself as:
-
-    $ gem install lare_round
 
 ## Contributing
 
