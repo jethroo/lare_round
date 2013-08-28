@@ -85,15 +85,14 @@ LareRound.round(hash,2).values.reduce(:+).to_f
 
 ## Open Issues / Features
 
+  * support specific type of rounding behavior for single items such as always rounding up in the case of taxes
+
 Item (unrounded)| Price (unrounded) | LareRound | Financial
- --- | --- | ---
+ --- | --- | --- | ---
  item | 10.000 | 10.00 | 10.00
  tax ( 8.23%) | 0.823 | 0.82 | 0.83
  **Total** | **10.823** | **10.82** | **10.83**
 
-
-
-  * support specific type of rounding behavior for single items such as always rounding up in the case of taxes
   * release as gem
 
 ## Installation
