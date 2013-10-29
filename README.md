@@ -6,9 +6,9 @@ A collection of BigDecimal items e.g. invoice items can be rounded for displayin
 [![Build Status](https://secure.travis-ci.org/jethroo/lare_round.png)](http://travis-ci.org/jethroo/lare_round)
 
 
-## Work in Progess
+## Used in production
 
-The gem status is still 'work in progress', it will be released until it satisfies my (and hopefully your) expectations.
+since 4th of september 2013 (still needs to be released as gem)
 
 ## Example
 
