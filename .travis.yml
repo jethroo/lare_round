@@ -5,7 +5,4 @@ rvm:
   - 2.0.0
   - 2.1.1
   - 2.1.2
-  - jruby-19mode # JRuby in 1.9 mode
-  - rbx-19mode
-  - ruby-head (upgraded every time CI passes)
-  - jruby-head (upgraded every time CI passes)
+  - jruby-19mode
