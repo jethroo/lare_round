@@ -93,13 +93,13 @@ Item (unrounded)| Price (unrounded) | LareRound | Financial
  tax ( 8.23%) | 0.823 | 0.82 | 0.83
  **Total** | **10.823** | **10.82** | **10.83**
 
-  * release as gem
+  * refactoring ^^
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'lare_round', :git => "git://github.com/jethroo/lare_round.git"
+    gem 'lare_round', '~> 0.0.1'
 
 And then execute:
 
