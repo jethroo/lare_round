@@ -1,9 +1,11 @@
-rvm:
+language: ruby
 
-  - "1.9.3"
+rvm:
+  - 1.9.3
+  - 2.0.0
+  - 2.1.1
+  - 2.1.2
   - jruby-19mode # JRuby in 1.9 mode
   - rbx-19mode
-branches:
-  only:
-    - master
-
+  - ruby-head (upgraded every time CI passes)
+  - jruby-head (upgraded every time CI passes)
