@@ -2,115 +2,150 @@ require_relative 'test_helper'
 require 'bigdecimal'
 require 'securerandom'
 
-class LareRoundTest < MiniTest::Unit::TestCase
+class LareRoundTest < MiniTest::Spec
+  def test_has_static_method_round
+    assert_equal(true, LareRound.respond_to?(:round))
+  end
 
-  def test_lareRound_has_static_method_round
-    assert_equal(true,LareRound.respond_to?(:round))
+  def create_big_decimal(precision, digit)
+    BigDecimal.new('0.' + '3' * precision + "#{digit}")
   end
 
   (1..9).each do |digit|
     (1..23).each do |items|
       (0..10).each do |precision|
 
-        method_name = "test #{items} rounded items with last digit of #{digit} should sum up to rounded total of BigDecimal items with precision of #{precision} if passed as array".gsub(' ','_')
+        method_name = <<-TESTMETHOD.strip.gsub(/\s+/, '_')
+          test #{items} items with last digit of #{digit}
+          should sum up to rounded total of BigDecimal items
+          with precision of #{precision} if passed as array
+        TESTMETHOD
         define_method method_name do
-          decimal = BigDecimal.new("0."+"3"*precision+"#{digit}")
-          arr = Array.new(items){decimal}
+          arr =  Array.new(items) { create_big_decimal(precision, digit) }
           rounded_total = arr.reduce(:+).round(precision)
-          assert_equal(rounded_total,LareRound.round(arr,precision).reduce(:+).round(precision))
+          assert_equal(
+            rounded_total,
+            LareRound.round(arr, precision).reduce(:+).round(precision)
+          )
         end
 
-        method_name = "test #{items} rounded items with last digit of #{digit} should sum up to rounded total of BigDecimal items with precision of #{precision} if passed as hash".gsub(' ','_')
+        method_name = <<-TESTMETHOD.strip.gsub(/\s+/, '_')
+          test #{items} rounded items with last digit of #{digit}
+          should sum up to rounded total of BigDecimal items
+          with precision of #{precision} if passed as hash
+        TESTMETHOD
         define_method method_name do
-          decimal = BigDecimal.new("0."+"3"*precision+"#{digit}")
-          hash = Hash[(1..items).map.with_index{|x,i|[x,decimal]}]
+          hash = Hash[
+            (1..items).map do
+              |x| [x, create_big_decimal(precision, digit)]
+            end
+          ]
           rounded_total = hash.values.reduce(:+).round(precision)
-          assert_equal(rounded_total,LareRound.round(hash,precision).values.reduce(:+).round(precision))
+          assert_equal(
+            rounded_total,
+            LareRound.round(hash, precision).values.reduce(:+).round(precision)
+          )
         end
 
-        method_name = "test #{items} rounded items with last digit of #{digit} and precision of #{precision} if passed as hash should not change order".gsub(' ','_')
+        method_name = <<-TESTMETHOD.strip.gsub(/\s+/, '_')
+          test #{items} rounded items with last digit of #{digit}
+          and precision of #{precision}
+          if passed as hash should not change order
+        TESTMETHOD
         define_method method_name do
-          decimal = BigDecimal.new("0."+"3"*precision+"#{digit}")
-          hash = Hash[(1..items).map.with_index{|x,i|[x,decimal+BigDecimal.new(i)]}]
-          rounded_hash = LareRound.round(hash.clone,precision)
+          hash = Hash[
+            (1..items).map.with_index do |x, i|
+              [x, create_big_decimal(precision, digit) + BigDecimal.new(i)]
+            end
+          ]
+          rounded_hash = LareRound.round(hash.clone, precision)
           hash.keys.each do |key|
-            assert( (((hash[key] - rounded_hash[key])*10**precision).abs < 1) )
+            assert((((hash[key] - rounded_hash[key]) * 10**precision).abs < 1))
           end
         end
 
-        method_name = "test #{items} rounded negative items with last digit of #{digit} should sum up to rounded total of BigDecimal items with precision of #{precision} if passed as array".gsub(' ','_')
+        method_name = <<-TESTMETHOD.strip.gsub(/\s+/, '_')
+          test #{items} rounded negative items with last digit of #{digit}
+          should sum up to rounded total of BigDecimal items with precision
+          of #{precision} if passed as array
+        TESTMETHOD
         define_method method_name do
-          decimal = BigDecimal.new("-0."+"3"*precision+"#{digit}")
-          arr = Array.new(items){decimal}
+          arr = Array.new(items) do
+            BigDecimal.new(-1 * create_big_decimal(precision, digit))
+          end
           rounded_total = arr.reduce(:+).round(precision)
-          assert_equal(rounded_total,LareRound.round(arr,precision).reduce(:+).round(precision))
+          assert_equal(
+            rounded_total,
+            LareRound.round(arr, precision).reduce(:+).round(precision)
+          )
         end
 
-        method_name = "test #{items} rounded mixed (+/-) items with last digit of #{digit} should sum up to rounded total of BigDecimal items with precision of #{precision} if passed as array".gsub(' ','_')
+        method_name = <<-TESTMETHOD.strip.gsub(/\s+/, '_')
+          test #{items} rounded mixed (+/-) items with last digit of #{digit}
+          should sum up to rounded total of BigDecimal items with precision
+          of #{precision} if passed as array
+        TESTMETHOD
         define_method method_name do
-          decimal = BigDecimal.new( (SecureRandom.random_number(100) % 2 == 0) ? "" : "-" + "0."+"3"*precision+"#{digit}")
-          arr = Array.new(items){decimal}
+          arr = Array.new(items) { create_big_decimal(precision, digit) }
+          arr.map! { |i| SecureRandom.random_number(1).even? ? i : -1 * i }
           rounded_total = arr.reduce(:+).round(precision)
-          assert_equal(rounded_total,LareRound.round(arr,precision).reduce(:+).round(precision))
+          assert_equal(
+            rounded_total,
+            LareRound.round(arr, precision).reduce(:+).round(precision)
+          )
         end
-
       end
     end
   end
 
+  let(:default_array) { Array.new(3) { BigDecimal.new('0.1234') } }
+
   def test_should_raise_if_precision_is_nil
-    decimal = BigDecimal.new("0.1234")
-    arr = Array.new(3){decimal}
-    exception = assert_raises(LareRound::LareRoundError){
-      LareRound.round(arr,nil)
-    }
-    assert_equal("precision must not be nil", exception.message)
+    exception = assert_raises(LareRound::LareRoundError) do
+      LareRound.round(default_array, nil)
+    end
+    assert_equal('precision must not be nil', exception.message)
   end
 
   def test_should_raise_if_precision_is_less_than_zero
-    decimal = BigDecimal.new("0.1234")
-    arr = Array.new(3){decimal}
-    exception = assert_raises(LareRound::LareRoundError){
-      LareRound.round(arr,-1)
-    }
-    assert_equal("precision must be greater or equal to 0", exception.message)
+    exception = assert_raises(LareRound::LareRoundError) do
+      LareRound.round(default_array, -1)
+    end
+    assert_equal('precision must be greater or equal to 0', exception.message)
   end
 
   def test_should_raise_if_precision_is_not_a_number
-    decimal = BigDecimal.new("0.1234")
-    arr = Array.new(3){decimal}
-    exception = assert_raises(LareRound::LareRoundError){
-      LareRound.round(arr,"not_a_number")
-    }
-    assert_equal("precision must be a number", exception.message)
+    exception = assert_raises(LareRound::LareRoundError) do
+      LareRound.round(default_array, 'not_a_number')
+    end
+    assert_equal('precision must be a number', exception.message)
   end
 
   def test_should_raise_if_values_is_nil
-    exception = assert_raises(LareRound::LareRoundError){
-      LareRound.round(nil,2)
-    }
-    assert_equal("values must not be nil", exception.message)
+    exception = assert_raises(LareRound::LareRoundError) do
+      LareRound.round(nil, 2)
+    end
+    assert_equal('values must not be nil', exception.message)
   end
 
   def test_should_raise_if_values_is_empty
-    exception = assert_raises(LareRound::LareRoundError){
-      LareRound.round([],2)
-    }
-    assert_equal("values must not be empty", exception.message)
+    exception = assert_raises(LareRound::LareRoundError) do
+      LareRound.round([], 2)
+    end
+    assert_equal('values must not be empty', exception.message)
   end
 
   def test_should_raise_if_values_contains_invalid_values
-    exception = assert_raises(LareRound::LareRoundError){
-      LareRound.round([3.2, 1, "not_a_number", Exception.new, nil],2)
-    }
-    assert_equal("values contains not numeric values (3)", exception.message)
+    exception = assert_raises(LareRound::LareRoundError) do
+      LareRound.round([3.2, 1, 'not_a_number', Exception.new, nil], 2)
+    end
+    assert_equal('values contains not numeric values (3)', exception.message)
   end
 
   def test_should_warn_if_numbers_not_big_decimals
-    out, err = capture_io do
-      LareRound.round([1.2132, 12.21212, 323.23],2)
+    _out, err = capture_io do
+      LareRound.round([1.2132, 12.21212, 323.23], 2)
     end
-    assert_match(/values contains non decimal values, you might loose precision or even get wrong rounding results/, err)
+    assert_match(/you might loose precision/, err)
   end
-
 end

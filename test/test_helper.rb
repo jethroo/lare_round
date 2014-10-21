@@ -1,8 +1,9 @@
-base_dir = File.expand_path(File.join(File.dirname(__FILE__), ".."))
-lib_dir  = File.join(base_dir, "lib")
-test_dir = File.join(base_dir, "test")
+base_dir = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+lib_dir  = File.join(base_dir, 'lib')
 
 $LOAD_PATH.unshift(lib_dir)
 
-require 'test/unit'
+require 'minitest/spec'
+require 'minitest/autorun'
+
 require 'lare_round'

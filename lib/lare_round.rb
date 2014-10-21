@@ -1,7 +1,6 @@
 require 'bigdecimal'
 
 module LareRound
-
   def self.round(values, precision)
     handle_input_errors(values, precision)
     process(values, precision)
@@ -13,14 +12,18 @@ module LareRound
   private
 
   def self.process(values, precision)
-    values.kind_of?(Hash) ? process_hash(values, precision) : round_array_of_values(values, precision)
+    if values.is_a? Hash
+      process_hash(values, precision)
+    else
+      round_array_of_values(values, precision)
+    end
   end
 
   def self.process_hash(values, precision)
     rounded_values = round_array_of_values(values.values, precision)
-    values.tap do |values| 
-      values.keys.each_with_index do |key, index|
-        values[key] = rounded_values[index]
+    values.tap do |hash|
+      hash.keys.each_with_index do |key, index|
+        hash[key] = rounded_values[index]
       end
     end
   end
@@ -46,11 +49,11 @@ module LareRound
   end
 
   Struct.new(
-    "IntermediaryResults", 
-    :decimal_shift, 
-    :rounded_total, 
-    :array_of_values, 
-    :unrounded_values, 
+    "IntermediaryResults",
+    :decimal_shift,
+    :rounded_total,
+    :array_of_values,
+    :unrounded_values,
     :precision,
     :rounded_values
   )
@@ -66,7 +69,7 @@ module LareRound
 
     largest_remainder_method(mrc)
 
-    return mrc.rounded_values
+    mrc.rounded_values
   end
 
   def self.largest_remainder_method(mrc)
@@ -77,7 +80,7 @@ module LareRound
       mrc.rounded_values[fractions.index(fractions.max)] += 1
     end
 
-    mrc.rounded_values.map!{|v| v / mrc.decimal_shift }
+    mrc.rounded_values.map!{ |v| v / mrc.decimal_shift }
   end
 
   def self.largest_remainder_round(v, mrc)
