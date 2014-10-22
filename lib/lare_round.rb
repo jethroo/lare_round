@@ -116,10 +116,10 @@ module LareRound
     # (0.7).round(0) + (0.7).round(0) + (0.7).round(0) = 1 + 1 + 1 = 3
     # elsewise if negative
     rounding_strategy = if v < 0
-                          BigDecimal::ROUND_UP
-                        else
-                          BigDecimal::ROUND_DOWN
-                        end
+        BigDecimal::ROUND_UP
+      else
+        BigDecimal::ROUND_DOWN
+      end
     v.round(mrc.precision, rounding_strategy) * mrc.decimal_shift
   end
 end
