@@ -4,7 +4,7 @@ A collection of BigDecimal items e.g. invoice items can be rounded for displayin
 
 ## Build status
 [![Build Status](https://secure.travis-ci.org/jethroo/lare_round.png)](http://travis-ci.org/jethroo/lare_round)
-
+[![Gem Version](https://badge.fury.io/rb/lare_round.svg)](http://badge.fury.io/rb/lare_round)
 
 ## Used in production
 
