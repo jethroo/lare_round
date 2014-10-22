@@ -1,54 +1,125 @@
 require 'bigdecimal'
 
 module LareRound
+  def self.round(values, precision)
+    # although it is the senders responsibility to ensure that correct messages
+    # are sent to this module it might not be quite obvious so i provide some
+    # help here with errors if input is invalid
+    array_of_values = values.is_a?(Hash) ? values.values : values
+    handle_value_errors(array_of_values)
+    handle_precision_errors(precision)
 
-  def self.round(values,precision)
-    raise LareRoundError.new("precision must not be nil")                   if precision.nil?
-    raise LareRoundError.new("precision must be a number")                  unless precision.is_a? Numeric
-    raise LareRoundError.new("precision must be greater or equal to 0")     if precision < 0
-    raise LareRoundError.new("values must not be nil")                      if values.nil?
-    raise LareRoundError.new("values must not be empty")                    if values.empty?
-    if values.kind_of?(Array)
-      round_array_of_values(values,precision)
-    elsif values.kind_of?(Hash)
-      rounded_values = round_array_of_values(values.values,precision)
-      values.keys.each_with_index do |key,index|
-        values[key] = rounded_values[index]
-      end
-      return values
-    end
+    process(values, precision)
   end
 
   # StandardError for dealing with application level errors
-  class LareRoundError < StandardError
-
-  end
+  class LareRoundError < StandardError; end
 
   private
-  def self.round_array_of_values(array_of_values,precision)
-    raise LareRoundError.new("array_of_values must be an array")            unless array_of_values.is_a? Array
-    number_of_invalid_values = array_of_values.map{|i| i.is_a? Numeric}.reject{|i| i == true}.size
-    raise LareRoundError.new("values contains not numeric values (#{number_of_invalid_values})") if number_of_invalid_values > 0
-    warn "values contains non decimal values, you might loose precision or even get wrong rounding results" if array_of_values.map{|i| i.is_a? BigDecimal}.reject{|i| i == true}.size > 0
 
-    #prevention of can't omit precision for a Rational
-    decimal_shift = BigDecimal.new (10 ** precision.to_i)
-    rounded_total = array_of_values.reduce(:+).round(precision) * decimal_shift
-    array_of_values = array_of_values.map{|v| ((v.is_a? BigDecimal) ? v : BigDecimal.new(v.to_s))}
-    unrounded_values = array_of_values.map{|v| v * decimal_shift }
+  def self.process(values, precision)
+    if values.is_a? Hash
+      process_hash(values, precision)
+    else
+      round_array_of_values(values, precision)
+    end
+  end
 
+  def self.process_hash(values, precision)
+    rounded_values = round_array_of_values(values.values, precision)
+    values.tap do |hash|
+      hash.keys.each_with_index do |key, index|
+        hash[key] = rounded_values[index]
+      end
+    end
+  end
+
+  def self.handle_value_errors(values)
+    fail LareRoundError, 'values must not be nil' if values.nil?
+    fail LareRoundError, 'values must not be empty' if values.empty?
+    fail LareRoundError, 'values must be an array' unless values.is_a? Array
+
+    numbers_invalid = values.map { |i| i.is_a? Numeric }
+      .reject { |i| i == true }.size
+    if numbers_invalid > 0
+      error = <<-ERROR.strip.gsub(/\s+/, ' ')
+        values contains not numeric values (#{numbers_invalid})
+      ERROR
+      fail LareRoundError, error
+    end
+
+    if values.map { |i| i.is_a? BigDecimal }.reject { |i| i == true }.size > 0
+      warning = <<-WARNING.strip.gsub(/\s+/, ' ')
+        values contains non decimal values,
+        you might loose precision or even get wrong rounding results
+      WARNING
+      warn warning
+    end
+  end
+
+  def self.handle_precision_errors(precision)
+    fail LareRoundError, 'precision must not be nil' if precision.nil?
+
+    unless precision.is_a? Numeric
+      fail LareRoundError, 'precision must be a number'
+    end
+
+    if precision < 0
+      fail LareRoundError, 'precision must be greater or equal to 0'
+    end
+  end
+
+  Struct.new(
+    'IntermediaryResults',
+    :decimal_shift,
+    :rounded_total,
+    :array_of_values,
+    :unrounded_values,
+    :precision,
+    :rounded_values
+  )
+
+  def self.round_array_of_values(array_of_values, precision)
+    mrc = Struct::IntermediaryResults.new
+    mrc.precision = precision
+    mrc.decimal_shift = BigDecimal.new(10**precision.to_i)
+    mrc.rounded_total = array_of_values.reduce(:+)
+      .round(precision) * mrc.decimal_shift
+    mrc.array_of_values = array_of_values.map do |v|
+      ((v.is_a? BigDecimal) ? v : BigDecimal.new(v.to_s))
+    end
+    mrc.unrounded_values = array_of_values.map { |v| v * mrc.decimal_shift }
+
+    largest_remainder_method(mrc)
+
+    mrc.rounded_values
+  end
+
+  def self.largest_remainder_method(mrc)
+    mrc.rounded_values = mrc.array_of_values.map do |v|
+      largest_remainder_round(v, mrc)
+    end
+
+    until mrc.rounded_values.reduce(:+) >= mrc.rounded_total
+      fractions = mrc.unrounded_values.zip(mrc.rounded_values).map do |x, y|
+        x - y
+      end
+      mrc.rounded_values[fractions.index(fractions.max)] += 1
+    end
+
+    mrc.rounded_values.map! { |v| v / mrc.decimal_shift }
+  end
+
+  def self.largest_remainder_round(v, mrc)
     # items needed to be rounded down if positiv:
     # 0.7 + 0.7 + 0.7 = ( 2.1 ).round(0) = 2
     # (0.7).round(0) + (0.7).round(0) + (0.7).round(0) = 1 + 1 + 1 = 3
     # elsewise if negative
-    rounded_values = array_of_values.map{|v| v < 0 ? v.round(precision, BigDecimal::ROUND_UP) * decimal_shift : v.round(precision, BigDecimal::ROUND_DOWN) * decimal_shift }
-
-    while not rounded_values.reduce(:+) >= rounded_total
-      fractions = unrounded_values.zip(rounded_values).map { |x, y| x - y }
-      rounded_values[fractions.index(fractions.max)] += 1
-    end
-
-    return rounded_values.map{|v| v / decimal_shift }
+    rounding_strategy = if v < 0
+        BigDecimal::ROUND_UP
+      else
+        BigDecimal::ROUND_DOWN
+      end
+    v.round(mrc.precision, rounding_strategy) * mrc.decimal_shift
   end
-
 end
