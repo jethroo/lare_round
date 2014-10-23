@@ -8,7 +8,7 @@ A collection of BigDecimal items e.g. invoice items can be rounded for displayin
 
 ## Used in production
 
-since 4th of september 2013 (still needs to be released as gem)
+since 4th of September 2013
 
 ## Example
 
@@ -93,8 +93,6 @@ Item (unrounded)| Price (unrounded) | LareRound | Financial
  tax ( 8.23%) | 0.823 | 0.82 | 0.83
  **Total** | **10.823** | **10.82** | **10.83**
 
-  * refactoring ^^
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -114,6 +112,7 @@ And then execute:
 5. Create new Pull Request
 
 ## License
+
 Hereby released under MIT license.
 
 ## Authors/Contributors
