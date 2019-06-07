@@ -15,14 +15,14 @@ since 4th of September 2013
 say we have an array of 3 invoice items which are stored in the database and your invoice calculations are precise to the 4th position after the decimal point:
 
 ```ruby
-Array.new(3){BigDecimal.new('0.3334')}
+Array.new(3){ BigDecimal('0.3334') }
 #  => [#<BigDecimal:c75a38,'0.3334E0',9(18)>, #<BigDecimal:c759c0,'0.3334E0',9(18)>, #<BigDecimal:c75920,'0.3334E0',9(18)>]
 ```
 say you have an invoice which is rendered as pdf which only needs to display the total you are fine, because you only
 have to round once for displaying a customer friendly price:
 
 ```ruby
-Array.new(3){BigDecimal.new('0.3334')}.reduce(:+).round(2).to_f
+Array.new(3){ BigDecimal('0.3334') }.reduce(:+).round(2).to_f
 # => 1.0
 ```
 
@@ -39,7 +39,7 @@ Item | Price
 So the most likely aproach is to simply round each item by itself, so the customer isn't bothered with 34/10000 €-Cents. Simple at it is its not quite what you want:
 
 ```ruby
-Array.new(3){BigDecimal.new('0.3334')}.map{|i| i.round(2)}.reduce(:+).to_f
+Array.new(3){ BigDecimal('0.3334') }.map{|i| i.round(2)}.reduce(:+).to_f
 # => 0.99
 ```
 
@@ -54,7 +54,7 @@ Now you have the customer bothering about why there is a difference between the 
 
 This gem helps to distribute the rounding error amongst the items to preserve the total:
 ```ruby
-a =  Array.new(3){BigDecimal.new('0.3334')}
+a =  Array.new(3){ BigDecimal('0.3334') }
 # => [#<BigDecimal:887b6c8,'0.3334E0',9(18)>, #<BigDecimal:887b600,'0.3334E0',9(18)>, #<BigDecimal:887b4c0,'0.3334E0',9(18)>]
 a = LareRound.round(a,2)
 # => [#<BigDecimal:8867330,'0.34E0',9(36)>, #<BigDecimal:8867290,'0.33E0',9(36)>, #<BigDecimal:88671f0,'0.33E0',9(36)>]
@@ -75,7 +75,7 @@ Item | Price
 LareRound supports *Array* and *Hash* as collection types. As usage of array was shown above here comes the hash example:
 
 ```ruby
-hash = Hash[(1..3).map.with_index{|x,i|[x,BigDecimal.new('0.3334')]}]
+hash = Hash[(1..3).map.with_index{ |x,i| [x,BigDecimal('0.3334')] }]
 # => {1=>#<BigDecimal:26ac7d0,'0.3334E0',9(18)>, 2=>#<BigDecimal:26ac730,'0.3334E0',9(18)>, 3=>#<BigDecimal:26ac690,'0.3334E0',9(18)>}
 LareRound.round(hash,2)
 # => {1=>#<BigDecimal:26b9318,'0.34E0',9(36)>, 2=>#<BigDecimal:26b9250,'0.33E0',9(36)>, 3=>#<BigDecimal:26b91b0,'0.33E0',9(36)>}
