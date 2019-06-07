@@ -5,6 +5,7 @@ A collection of BigDecimal items e.g. invoice items can be rounded for displayin
 ## Build status
 [![Build Status](https://secure.travis-ci.org/jethroo/lare_round.png)](http://travis-ci.org/jethroo/lare_round)
 [![Gem Version](https://badge.fury.io/rb/lare_round.svg)](http://badge.fury.io/rb/lare_round)
+<a href="https://codeclimate.com/github/jethroo/lare_round/maintainability"><img src="https://api.codeclimate.com/v1/badges/9d97f5a7c54707277efc/maintainability" /></a>
 
 ## Used in production
 
@@ -97,7 +98,7 @@ Item (unrounded)| Price (unrounded) | LareRound | Financial
 
 Add this line to your application's Gemfile:
 
-    gem 'lare_round', '~> 0.0.1'
+    gem 'lare_round', '~> 0.0.3'
 
 And then execute:
 
