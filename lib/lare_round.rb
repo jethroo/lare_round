@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bigdecimal'
 
 module LareRound
@@ -35,20 +37,20 @@ module LareRound
   end
 
   def self.handle_value_errors(values)
-    fail LareRoundError, 'values must not be nil' if values.nil?
-    fail LareRoundError, 'values must not be empty' if values.empty?
-    fail LareRoundError, 'values must be an array' unless values.is_a? Array
+    raise LareRoundError, 'values must not be nil' if values.nil?
+    raise LareRoundError, 'values must not be empty' if values.empty?
+    raise LareRoundError, 'values must be an array' unless values.is_a? Array
 
     numbers_invalid = values.map { |i| i.is_a? Numeric }
-      .reject { |i| i == true }.size
+                            .reject { |i| i == true }.size
     if numbers_invalid > 0
       error = <<-ERROR.strip.gsub(/\s+/, ' ')
         values contains not numeric values (#{numbers_invalid})
       ERROR
-      fail LareRoundError, error
+      raise LareRoundError, error
     end
 
-    if values.map { |i| i.is_a? BigDecimal }.reject { |i| i == true }.size > 0
+    unless values.map { |i| i.is_a? BigDecimal }.reject { |i| i == true }.empty?
       warning = <<-WARNING.strip.gsub(/\s+/, ' ')
         values contains non decimal values,
         you might loose precision or even get wrong rounding results
@@ -58,14 +60,14 @@ module LareRound
   end
 
   def self.handle_precision_errors(precision)
-    fail LareRoundError, 'precision must not be nil' if precision.nil?
+    raise LareRoundError, 'precision must not be nil' if precision.nil?
 
     unless precision.is_a? Numeric
-      fail LareRoundError, 'precision must be a number'
+      raise LareRoundError, 'precision must be a number'
     end
 
     if precision < 0
-      fail LareRoundError, 'precision must be greater or equal to 0'
+      raise LareRoundError, 'precision must be greater or equal to 0'
     end
   end
 
@@ -82,11 +84,11 @@ module LareRound
   def self.round_array_of_values(array_of_values, precision)
     mrc = Struct::IntermediaryResults.new
     mrc.precision = precision
-    mrc.decimal_shift = BigDecimal.new(10**precision.to_i)
+    mrc.decimal_shift = BigDecimal(10**precision.to_i)
     mrc.rounded_total = array_of_values.reduce(:+)
-      .round(precision) * mrc.decimal_shift
+                                       .round(precision) * mrc.decimal_shift
     mrc.array_of_values = array_of_values.map do |v|
-      ((v.is_a? BigDecimal) ? v : BigDecimal.new(v.to_s))
+      ((v.is_a? BigDecimal) ? v : BigDecimal(v.to_s))
     end
     mrc.unrounded_values = array_of_values.map { |v| v * mrc.decimal_shift }
 
@@ -116,9 +118,9 @@ module LareRound
     # (0.7).round(0) + (0.7).round(0) + (0.7).round(0) = 1 + 1 + 1 = 3
     # elsewise if negative
     rounding_strategy = if v < 0
-        BigDecimal::ROUND_UP
-      else
-        BigDecimal::ROUND_DOWN
+                          BigDecimal::ROUND_UP
+                        else
+                          BigDecimal::ROUND_DOWN
       end
     v.round(mrc.precision, rounding_strategy) * mrc.decimal_shift
   end
