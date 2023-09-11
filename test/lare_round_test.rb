@@ -4,7 +4,7 @@ require_relative 'test_helper'
 require 'bigdecimal'
 require 'securerandom'
 
-class LareRoundTest < MiniTest::Spec
+class LareRoundTest < Minitest::Spec
   def test_has_static_method_round
     assert_equal(true, LareRound.respond_to?(:round))
   end
