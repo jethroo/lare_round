@@ -3,7 +3,7 @@
 A collection of BigDecimal items e.g. invoice items can be rounded for displaying them in views. Rounding may apply a rounding error to the items such as the summed up rounded items will show deviation towards an invoice total with summed unrounded items. Which might cause confusion for customers and finance departments alike. Application of the largest remainder method can help to preserve the total sum for rounded parts thus eliminating this confusion.
 
 ## Build status
-[![Build Status](https://secure.travis-ci.org/jethroo/lare_round.png)](http://travis-ci.org/jethroo/lare_round)
+[![Continuous Integration](https://github.com/jethroo/lare_round/actions/workflows/ci.yml/badge.svg)](https://github.com/jethroo/lare_round/actions/workflows/ci.yml)
 [![Gem Version](https://badge.fury.io/rb/lare_round.svg)](http://badge.fury.io/rb/lare_round)
 <a href="https://codeclimate.com/github/jethroo/lare_round/maintainability"><img src="https://api.codeclimate.com/v1/badges/9d97f5a7c54707277efc/maintainability" /></a>
 
@@ -98,11 +98,22 @@ Item (unrounded)| Price (unrounded) | LareRound | Financial
 
 Add this line to your application's Gemfile:
 
+```
     gem 'lare_round', '~> 0.0.3'
-
+```
 And then execute:
 
-    $ bundle
+```
+bundle install
+```
+
+## Test
+
+The tests can be run after bundling with
+
+```
+rake test
+```
 
 ## Contributing
 
