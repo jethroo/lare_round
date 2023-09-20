@@ -115,9 +115,3 @@ Style/HashConversion:
 Style/HashEachMethods:
   Exclude:
     - 'test/lare_round_test.rb'
-
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-Style/IfUnlessModifier:
-  Exclude:
-    - 'lib/lare_round.rb'
