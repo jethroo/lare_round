@@ -10,7 +10,7 @@ class LareRoundTest < Minitest::Spec
   end
 
   def create_big_decimal(precision, digit)
-    BigDecimal('0.' + '3' * precision + digit.to_s)
+    BigDecimal("0.#{'3' * precision}#{digit}")
   end
 
   (1..9).each do |digit|
