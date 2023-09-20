@@ -129,10 +129,3 @@ Style/IfUnlessModifier:
 Style/SpecialGlobalVars:
   Exclude:
     - 'lare_round.gemspec'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: Mode.
-Style/StringConcatenation:
-  Exclude:
-    - 'test/lare_round_test.rb'
