@@ -121,11 +121,3 @@ Style/HashEachMethods:
 Style/IfUnlessModifier:
   Exclude:
     - 'lib/lare_round.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: RequireEnglish, EnforcedStyle.
-# SupportedStyles: use_perl_names, use_english_names, use_builtin_english_names
-Style/SpecialGlobalVars:
-  Exclude:
-    - 'lare_round.gemspec'
