@@ -88,10 +88,13 @@ module LareRound
       mrc.decimal_shift = BigDecimal(10**precision.to_i)
       mrc.rounded_total = array_of_values.reduce(:+)
                                          .round(precision) * mrc.decimal_shift
-      mrc.array_of_values = array_of_values.map do |v|
-        ((v.is_a? BigDecimal) ? v : BigDecimal(v.to_s))
+      mrc.array_of_values = array_of_values.map do |value|
+        value.is_a?(BigDecimal) ? value : BigDecimal(value.to_s)
       end
-      mrc.unrounded_values = array_of_values.map { |v| v * mrc.decimal_shift }
+
+      mrc.unrounded_values = array_of_values.map do |value|
+        value * mrc.decimal_shift
+      end
 
       largest_remainder_method(mrc)
 
