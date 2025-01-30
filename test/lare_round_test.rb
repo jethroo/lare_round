@@ -57,7 +57,7 @@ class LareRoundTest < Minitest::Spec
           end.to_h
           rounded_hash = LareRound.round(hash.clone, precision)
           hash.each_key do |key|
-            assert((((hash[key] - rounded_hash[key]) * 10**precision).abs < 1))
+            assert((((hash[key] - rounded_hash[key]) * (10**precision)).abs < 1))
           end
         end
 

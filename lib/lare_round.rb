@@ -2,6 +2,7 @@
 
 require 'bigdecimal'
 
+# module providing the entry point to the rounding logic
 module LareRound
   def self.round(values, precision)
     # although it is the senders responsibility to ensure that correct messages
@@ -51,13 +52,12 @@ module LareRound
         raise LareRoundError, error
       end
 
-      unless values.map { |i| i.is_a? BigDecimal }.reject { |i| i == true }.empty?
-        warning = <<-WARNING.strip.gsub(/\s+/, ' ')
-          values contains non decimal values,
-          you might loose precision or even get wrong rounding results
-        WARNING
-        warn warning
-      end
+      return if values.map { |i| i.is_a? BigDecimal }.reject { |i| i == true }.empty?
+
+      warn <<-WARNING.strip.gsub(/\s+/, ' ')
+        values contains non decimal values,
+        you might loose precision or even get wrong rounding results
+      WARNING
     end
 
     def handle_precision_errors(precision)
