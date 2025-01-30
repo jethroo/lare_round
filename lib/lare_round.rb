@@ -62,14 +62,8 @@ module LareRound
 
     def handle_precision_errors(precision)
       raise LareRoundError, 'precision must not be nil' if precision.nil?
-
-      unless precision.is_a? Numeric
-        raise LareRoundError, 'precision must be a number'
-      end
-
-      if precision.negative?
-        raise LareRoundError, 'precision must be greater or equal to 0'
-      end
+      raise LareRoundError, 'precision must be a number' unless precision.is_a?(Numeric)
+      raise LareRoundError, 'precision must be greater or equal to 0' if precision.negative?
     end
 
     Struct.new(
