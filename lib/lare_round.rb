@@ -89,7 +89,7 @@ module LareRound
       mrc.rounded_total = array_of_values.reduce(:+)
                                          .round(precision) * mrc.decimal_shift
       mrc.array_of_values = array_of_values.map do |v|
-        ((v.is_a? BigDecimal) ? v : BigDecimal(v.to_s))
+        v.is_a?(BigDecimal) ? v : BigDecimal(v.to_s)
       end
       mrc.unrounded_values = array_of_values.map { |v| v * mrc.decimal_shift }
 
