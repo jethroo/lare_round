@@ -2,6 +2,7 @@
 
 require 'bigdecimal'
 
+# module providing the entry point to the rounding logic
 module LareRound
   def self.round(values, precision)
     # although it is the senders responsibility to ensure that correct messages
@@ -51,25 +52,18 @@ module LareRound
         raise LareRoundError, error
       end
 
-      unless values.map { |i| i.is_a? BigDecimal }.reject { |i| i == true }.empty?
-        warning = <<-WARNING.strip.gsub(/\s+/, ' ')
-          values contains non decimal values,
-          you might loose precision or even get wrong rounding results
-        WARNING
-        warn warning
-      end
+      return if values.map { |i| i.is_a? BigDecimal }.reject { |i| i == true }.empty?
+
+      warn <<-WARNING.strip.gsub(/\s+/, ' ')
+        values contains non decimal values,
+        you might loose precision or even get wrong rounding results
+      WARNING
     end
 
     def handle_precision_errors(precision)
       raise LareRoundError, 'precision must not be nil' if precision.nil?
-
-      unless precision.is_a? Numeric
-        raise LareRoundError, 'precision must be a number'
-      end
-
-      if precision.negative?
-        raise LareRoundError, 'precision must be greater or equal to 0'
-      end
+      raise LareRoundError, 'precision must be a number' unless precision.is_a?(Numeric)
+      raise LareRoundError, 'precision must be greater or equal to 0' if precision.negative?
     end
 
     Struct.new(
@@ -89,7 +83,7 @@ module LareRound
       mrc.rounded_total = array_of_values.reduce(:+)
                                          .round(precision) * mrc.decimal_shift
       mrc.array_of_values = array_of_values.map do |v|
-        ((v.is_a? BigDecimal) ? v : BigDecimal(v.to_s))
+        v.is_a?(BigDecimal) ? v : BigDecimal(v.to_s)
       end
       mrc.unrounded_values = array_of_values.map { |v| v * mrc.decimal_shift }
 

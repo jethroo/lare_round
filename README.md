@@ -98,21 +98,29 @@ Item (unrounded)| Price (unrounded) | LareRound | Financial
 
 Add this line to your application's Gemfile:
 
-```
+```bash
     gem 'lare_round', '~> 0.0.3'
 ```
 And then execute:
 
-```
+```bash
 bundle install
 ```
 
 ## Test
 
-The tests can be run after bundling with
+The tests can be run after bundling with:
 
-```
+```bash
 rake test
+```
+
+## Console
+
+To start the interactive ruby shell (irb) you can run:
+
+```bash
+bin/console
 ```
 
 ## Contributing

@@ -10,7 +10,7 @@ class LareRoundTest < Minitest::Spec
   end
 
   def create_big_decimal(precision, digit)
-    BigDecimal('0.' + '3' * precision + digit.to_s)
+    BigDecimal("0.#{'3' * precision}#{digit}")
   end
 
   (1..9).each do |digit|
@@ -36,11 +36,9 @@ class LareRoundTest < Minitest::Spec
           with precision of #{precision} if passed as hash
         TESTMETHOD
         define_method method_name do
-          hash = Hash[
-            (1..items).map do |x|
-              [x, create_big_decimal(precision, digit)]
-            end
-          ]
+          hash = (1..items).to_h do |x|
+            [x, create_big_decimal(precision, digit)]
+          end
           rounded_total = hash.values.reduce(:+).round(precision)
           assert_equal(
             rounded_total,
@@ -54,14 +52,12 @@ class LareRoundTest < Minitest::Spec
           if passed as hash should not change order
         TESTMETHOD
         define_method method_name do
-          hash = Hash[
-            (1..items).map.with_index do |x, i|
-              [x, create_big_decimal(precision, digit) + BigDecimal(i)]
-            end
-          ]
+          hash = (1..items).map.with_index do |x, i|
+            [x, create_big_decimal(precision, digit) + BigDecimal(i)]
+          end.to_h
           rounded_hash = LareRound.round(hash.clone, precision)
-          hash.keys.each do |key|
-            assert((((hash[key] - rounded_hash[key]) * 10**precision).abs < 1))
+          hash.each_key do |key|
+            assert((((hash[key] - rounded_hash[key]) * (10**precision)).abs < 1))
           end
         end
 
