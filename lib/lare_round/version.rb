@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module LareRound
-  VERSION = '0.0.3'
+  VERSION = '1.0.0'
 end

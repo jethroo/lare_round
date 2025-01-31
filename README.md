@@ -99,7 +99,7 @@ Item (unrounded)| Price (unrounded) | LareRound | Financial
 Add this line to your application's Gemfile:
 
 ```bash
-    gem 'lare_round', '~> 0.0.3'
+    gem 'lare_round', '~> 1.0.0'
 ```
 And then execute:
 
