@@ -7,6 +7,7 @@ require 'lare_round/version'
 
 Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 3.0.4'
+  spec.add_dependency "bigdecimal", ">= 3.3.1"
 
   spec.name          = 'lare_round'
   spec.version       = LareRound::VERSION
