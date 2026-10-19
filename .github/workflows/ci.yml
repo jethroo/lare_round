@@ -5,6 +5,9 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Rspec and Rubocop
@@ -17,6 +20,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1.329.0
@@ -25,13 +30,9 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
       - name: Rubocop
-        env:
-          RAILS_ENV: test
         run: |
           bundle exec rubocop
 
       - name: Minitest
-        env:
-          RAILS_ENV: test
         run: |
           bundle exec rake test
