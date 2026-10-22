@@ -1,115 +1,123 @@
 # LareRound
 
-A collection of BigDecimal items e.g. invoice items can be rounded for displaying them in views. Rounding may apply a rounding error to the items such as the summed up rounded items will show deviation towards an invoice total with summed unrounded items. Which might cause confusion for customers and finance departments alike. Application of the largest remainder method can help to preserve the total sum for rounded parts thus eliminating this confusion.
+LareRound distributes rounding differences across a collection of `BigDecimal` values, such as invoice line items, while preserving the rounded total.
+
+Rounding each item individually can produce a sum that differs from the rounded sum of the original values. This discrepancy can confuse customers and accounting teams. LareRound uses the **largest remainder method** to adjust individual rounded values so that their sum matches the rounded total.
 
 ## Build status
+
 [![Continuous Integration](https://github.com/jethroo/lare_round/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/jethroo/lare_round/actions/workflows/ci.yml)
 [![Gem Version](https://img.shields.io/gem/v/lare_round.svg)](https://rubygems.org/gems/lare_round)
-[<a href="https://codeclimate.com/github/jethroo/lare_round/maintainability"><img src="https://api.codeclimate.com/v1/badges/9d97f5a7c54707277efc/maintainability" /></a>](https://qlty.sh/gh/jethroo/projects/lare_round/maintainability.svg)
 
 ## Used in production
 
-since 4th of September 2013
+Since September 4, 2013.
 
 ## Example
 
-say we have an array of 3 invoice items which are stored in the database and your invoice calculations are precise to the 4th position after the decimal point:
+Suppose an invoice contains three line items stored with four decimal places:
 
 ```ruby
-Array.new(3){ BigDecimal('0.3334') }
-#  => [#<BigDecimal:c75a38,'0.3334E0',9(18)>, #<BigDecimal:c759c0,'0.3334E0',9(18)>, #<BigDecimal:c75920,'0.3334E0',9(18)>]
+items = Array.new(3) { BigDecimal('0.3334') }
+# => [0.3334, 0.3334, 0.3334] (BigDecimal values)
 ```
-say you have an invoice which is rendered as pdf which only needs to display the total you are fine, because you only
-have to round once for displaying a customer friendly price:
+
+If you only need to display the invoice total, rounding once is sufficient:
 
 ```ruby
-Array.new(3){ BigDecimal('0.3334') }.reduce(:+).round(2).to_f
+items.reduce(:+).round(2).to_f
 # => 1.0
 ```
 
-But what if you need to dispay each item separately? Each item of the invoice has to be displayed in a customer friendly way.
+But what if you need to display each line item separately? The original values are:
 
-Item | Price
- --- | ---
- item 1 | 0.3334
- item 2 | 0.3334
- item 3 | 0.3334
- **Total** | **1.0002**
+| Item | Price |
+| --- | ---: |
+| Item 1 | 0.3334 |
+| Item 2 | 0.3334 |
+| Item 3 | 0.3334 |
+| **Unrounded total** | **1.0002** |
 
-
-So the most likely aproach is to simply round each item by itself, so the customer isn't bothered with 34/10000 €-Cents. Simple at it is its not quite what you want:
+The obvious approach is to round each item independently to two decimal places:
 
 ```ruby
-Array.new(3){ BigDecimal('0.3334') }.map{|i| i.round(2)}.reduce(:+).to_f
+items.map { |item| item.round(2) }.reduce(:+).to_f
 # => 0.99
 ```
 
-Item | Price
- --- | ---
- item 1 | 0.33
- item 2 | 0.33
- item 3 | 0.33
- **Total** | **1.00**
+However, the displayed items now add up to `0.99`, while the invoice total rounds to `1.00`:
 
-Now you have the customer bothering about why there is a difference between the invoice total and the invoice items sum. Which may lead in mistrust ("Hey! These guys can't even do math. I'll keep my money.") or all kinds of related confusions.
+| Item | Displayed price |
+| --- | ---: |
+| Item 1 | 0.33 |
+| Item 2 | 0.33 |
+| Item 3 | 0.33 |
+| **Sum of displayed items** | **0.99** |
+| **Rounded invoice total** | **1.00** |
 
-This gem helps to distribute the rounding error amongst the items to preserve the total:
+This discrepancy can confuse customers and undermine their confidence in the invoice.
+
+LareRound distributes the rounding difference across the items so that the displayed values add up to the rounded invoice total:
+
 ```ruby
-a =  Array.new(3){ BigDecimal('0.3334') }
-# => [#<BigDecimal:887b6c8,'0.3334E0',9(18)>, #<BigDecimal:887b600,'0.3334E0',9(18)>, #<BigDecimal:887b4c0,'0.3334E0',9(18)>]
-a = LareRound.round(a,2)
-# => [#<BigDecimal:8867330,'0.34E0',9(36)>, #<BigDecimal:8867290,'0.33E0',9(36)>, #<BigDecimal:88671f0,'0.33E0',9(36)>]
-a.reduce(:+).to_f
+rounded_items = LareRound.round(items, 2)
+rounded_items.map(&:to_f)
+# => [0.34, 0.33, 0.33]
+
+rounded_items.reduce(:+).to_f
 # => 1.0
 ```
 
-This is accomplish by utilizing the largest remainder method. Which checks for the items with the largest rounding error and increasing them iteratively as long as the sums do not match. Regarding the before mentioned expample each item
-is rounded down to 0.33 and then the algorithm adds 0.01 to one item thus making the sums equal.
+The largest remainder method starts with values rounded down to the required precision, then allocates the remaining smallest units to items with the largest fractional remainders until the target total is reached. In this example, each item starts at `0.33`, and one item receives an additional `0.01`.
 
-Item | Price
- --- | ---
- item 1 | 0.34
- item 2 | 0.33
- item 3 | 0.33
- **Total** | **1.00**
+| Item | Displayed price |
+| --- | ---: |
+| Item 1 | 0.34 |
+| Item 2 | 0.33 |
+| Item 3 | 0.33 |
+| **Total** | **1.00** |
 
-LareRound supports *Array* and *Hash* as collection types. As usage of array was shown above here comes the hash example:
+LareRound supports both `Array` and `Hash` collections. Here is the equivalent example using a hash:
 
 ```ruby
-hash = Hash[(1..3).map.with_index{ |x,i| [x,BigDecimal('0.3334')] }]
-# => {1=>#<BigDecimal:26ac7d0,'0.3334E0',9(18)>, 2=>#<BigDecimal:26ac730,'0.3334E0',9(18)>, 3=>#<BigDecimal:26ac690,'0.3334E0',9(18)>}
-LareRound.round(hash,2)
-# => {1=>#<BigDecimal:26b9318,'0.34E0',9(36)>, 2=>#<BigDecimal:26b9250,'0.33E0',9(36)>, 3=>#<BigDecimal:26b91b0,'0.33E0',9(36)>}
-LareRound.round(hash,2).values.reduce(:+).to_f
-#=> 1.0
+items_by_id = (1..3).to_h { |id| [id, BigDecimal('0.3334')] }
+rounded_by_id = LareRound.round(items_by_id, 2)
+rounded_by_id.transform_values(&:to_f)
+# => {1 => 0.34, 2 => 0.33, 3 => 0.33}
+
+rounded_by_id.values.reduce(:+).to_f
+# => 1.0
 ```
 
-## Open Issues / Features
+## Open issues / Features
 
-  * support specific type of rounding behavior for single items such as always rounding up in the case of taxes
+- Support configurable rounding behavior for individual items, such as always rounding tax amounts up.
 
-Item (unrounded)| Price (unrounded) | LareRound | Financial
- --- | --- | --- | ---
- item | 10.000 | 10.00 | 10.00
- tax ( 8.23%) | 0.823 | 0.82 | 0.83
- **Total** | **10.823** | **10.82** | **10.83**
+For example, a tax-specific rounding rule could produce a different result:
+
+| Item | Unrounded price | LareRound | Financial rounding |
+| --- | ---: | ---: | ---: |
+| Item | 10.000 | 10.00 | 10.00 |
+| Tax (8.23%) | 0.823 | 0.82 | 0.83 |
+| **Total** | **10.823** | **10.82** | **10.83** |
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-```bash
-    gem 'lare_round', '~> 1.0.0'
+```ruby
+gem 'lare_round', '~> 1.0.2'
 ```
-And then execute:
+
+Then run:
 
 ```bash
 bundle install
 ```
 
-## Test
+## Tests
 
-The tests can be run after bundling with:
+After installing the dependencies, run:
 
 ```bash
 rake test
@@ -117,7 +125,7 @@ rake test
 
 ## Console
 
-To start the interactive ruby shell (irb) you can run:
+To start an interactive Ruby shell (IRB), run:
 
 ```bash
 bin/console
@@ -125,17 +133,17 @@ bin/console
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b my-new-feature`).
+3. Commit your changes (`git commit -am 'Add a new feature'`).
+4. Push your branch (`git push origin my-new-feature`).
+5. Open a pull request.
 
 ## License
 
-Hereby released under MIT license.
+Released under the MIT License.
 
-## Authors/Contributors
+## Authors / Contributors
 
-- [BlackLane GmbH](http://www.blacklane.com "Blacklane")
-- [Carsten Wirth](http://github.com/jethroo)
+- [Blacklane GmbH](https://www.blacklane.com)
+- [Carsten Wirth](https://github.com/jethroo)
