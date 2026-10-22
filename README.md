@@ -1,13 +1,11 @@
+[![Continuous Integration](https://github.com/jethroo/lare_round/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/jethroo/lare_round/actions/workflows/ci.yml)
+[![Gem Version](https://img.shields.io/gem/v/lare_round.svg)](https://rubygems.org/gems/lare_round)
+
 # LareRound
 
 LareRound distributes rounding differences across a collection of `BigDecimal` values, such as invoice line items, while preserving the rounded total.
 
-Rounding each item individually can produce a sum that differs from the rounded sum of the original values. This discrepancy can confuse customers and accounting teams. LareRound uses the **largest remainder method** to adjust individual rounded values so that their sum matches the rounded total.
-
-## Build status
-
-[![Continuous Integration](https://github.com/jethroo/lare_round/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/jethroo/lare_round/actions/workflows/ci.yml)
-[![Gem Version](https://img.shields.io/gem/v/lare_round.svg)](https://rubygems.org/gems/lare_round)
+Rounding each item individually can produce a sum that differs from the rounded sum of the original values. This discrepancy can confuse customers and accounting teams. LareRound uses the [**largest remainder method**](https://en.wikipedia.org/wiki/Largest_remainder_method) to adjust individual rounded values so that their sum matches the rounded total.
 
 ## Used in production
 
@@ -106,7 +104,7 @@ For example, a tax-specific rounding rule could produce a different result:
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'lare_round', '~> 1.0.2'
+gem 'lare_round', '~> 1.0.1'
 ```
 
 Then run:
